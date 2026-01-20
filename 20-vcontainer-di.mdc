@@ -1,3 +1,9 @@
+---
+name: VContainer Dependency Injection
+description: Defines how dependency injection, lifetime scopes, and MessagePipe registration are handled using VContainer. Use this rule when registering services, scopes, or entry points.
+---
+
+
 # VContainer DI Rules (with MessagePipe)
 
 ## LifetimeScopes

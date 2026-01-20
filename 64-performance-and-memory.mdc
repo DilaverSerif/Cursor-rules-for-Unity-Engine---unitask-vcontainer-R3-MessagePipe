@@ -1,3 +1,9 @@
+---
+name: Performance & Memory
+description: Defines performance, allocation, and memory management rules. Use this rule when writing hot-path code, Update loops, or performing optimizations.
+---
+
+
 # Performance & Memory Rules
 
 ## Purpose

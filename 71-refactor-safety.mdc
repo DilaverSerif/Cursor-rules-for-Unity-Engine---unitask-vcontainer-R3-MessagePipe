@@ -1,3 +1,9 @@
+---
+name: Refactor Safety
+description: Defines rules to prevent architectural breakage during refactoring, especially when using AI-assisted tools. Use this rule before and during any refactor.
+---
+
+
 # Refactor Safety Rules (Cursor)
 
 ## Purpose

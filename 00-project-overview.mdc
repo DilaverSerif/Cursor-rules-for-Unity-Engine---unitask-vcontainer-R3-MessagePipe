@@ -1,3 +1,9 @@
+---
+name: Project Overview
+description: Defines the overall goals, scope, and architectural principles of the project. Use this rule when making high-level design decisions or introducing new subsystems.
+---
+
+
 # Project Overview (Unity) — VContainer + UniTask + R3
 
 ## Goals

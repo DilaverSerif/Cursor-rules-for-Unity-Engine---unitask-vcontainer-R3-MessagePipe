@@ -1,3 +1,9 @@
+---
+name: Architecture & Folder Structure
+description: Describes layer responsibilities and dependency boundaries between Domain, Application, Presentation, Infrastructure, and Bootstrap. Use this rule when adding, moving, or restructuring files.
+---
+
+
 # Architecture & Folder Rules
 
 ## Folder Ownership

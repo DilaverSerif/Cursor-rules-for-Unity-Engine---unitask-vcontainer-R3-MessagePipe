@@ -1,3 +1,9 @@
+---
+name: UniTask Async Rules
+description: Defines async workflow standards including cancellation, exception handling, threading, and fire-and-forget policies. Use this rule whenever writing async or long-running operations.
+---
+
+
 # UniTask Async Rules
 
 ## General

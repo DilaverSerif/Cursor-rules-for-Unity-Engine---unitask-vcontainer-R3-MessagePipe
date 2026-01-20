@@ -1,3 +1,9 @@
+---
+name: R3 Reactive State
+description: Defines reactive state management rules and the strict boundary between state (R3) and events (MessagePipe). Use this rule when designing observable state or UI bindings.
+---
+
+
 # R3 Reactive Rules (with MessagePipe Boundary)
 
 ## Core Rule

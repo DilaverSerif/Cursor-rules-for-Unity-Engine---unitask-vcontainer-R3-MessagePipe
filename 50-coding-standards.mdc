@@ -1,3 +1,9 @@
+---
+name: Coding Standards
+description: Defines general coding conventions, naming rules, testing expectations, and event vs state discipline. This rule applies to all newly written or refactored code.
+---
+
+
 # Coding Standards
 
 ## Event vs State

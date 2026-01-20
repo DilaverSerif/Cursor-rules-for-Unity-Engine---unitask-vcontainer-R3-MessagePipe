@@ -1,3 +1,9 @@
+---
+name: Async & Reactive Interop
+description: Defines safe interaction patterns between UniTask, R3, and MessagePipe. Use this rule when combining async workflows with reactive state and events.
+---
+
+
 # UniTask ↔ R3 ↔ MessagePipe Interop Rules
 
 ## Purpose

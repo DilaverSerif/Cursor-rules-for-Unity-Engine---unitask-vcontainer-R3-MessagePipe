@@ -1,3 +1,9 @@
+---
+name: Error Handling & Logging
+description: Defines error handling strategies, Result-based flows, and logging standards. Use this rule when implementing IO, async flows, or user-impacting operations.
+---
+
+
 # Error Handling & Logging Rules
 
 ## Purpose

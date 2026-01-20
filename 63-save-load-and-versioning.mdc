@@ -1,3 +1,9 @@
+---
+name: Save / Load & Versioning
+description: Defines persistence rules including save data structure, versioning, and migration strategies. Use this rule when implementing or changing save/load functionality.
+---
+
+
 # Save/Load & Versioning Rules
 
 ## Purpose

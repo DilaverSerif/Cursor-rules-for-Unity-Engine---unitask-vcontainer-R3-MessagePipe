@@ -1,3 +1,9 @@
+---
+name: Data & ScriptableObjects
+description: Defines how configuration data and ScriptableObjects should be structured and used. Use this rule when creating items, upgrades, recipes, or other static game data.
+---
+
+
 # Data & ScriptableObject Rules
 
 ## Purpose

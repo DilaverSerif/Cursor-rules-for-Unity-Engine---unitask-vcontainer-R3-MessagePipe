@@ -1,3 +1,9 @@
+---
+name: UI & Input
+description: Defines responsibilities and boundaries for UI, input handling, Views, and ViewModels. Use this rule when implementing screens, HUDs, menus, or player input.
+---
+
+
 # UI & Input Rules
 
 ## Purpose

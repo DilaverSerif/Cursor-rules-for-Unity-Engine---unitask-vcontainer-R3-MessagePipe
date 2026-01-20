@@ -1,3 +1,9 @@
+---
+name: Gameplay Features
+description: Defines how gameplay mechanics must be implemented using Domain and Application layers. Use this rule when adding or modifying core gameplay features or systems.
+---
+
+
 # Gameplay Features Rules
 
 ## Purpose

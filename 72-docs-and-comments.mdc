@@ -1,3 +1,9 @@
+---
+name: Docs & Comments
+description: Defines documentation and commenting standards focused on intent and invariants. Use this rule when writing public APIs or complex, non-obvious systems.
+---
+
+
 # Docs & Comments Rules
 
 ## Purpose
