@@ -1,0 +1,43 @@
+# Save/Load & Versioning Rules
+
+## Purpose
+Ensures save files survive updates and failures with clear ownership and migration.
+
+## Ownership
+- Save/Load lives in Infrastructure (implementation) + Application (UseCases/orchestration).
+- UI never performs save/load directly.
+
+## Save Data Model
+- SaveData must be a DTO:
+  - Plain fields only (no methods that implement rules)
+  - No UnityEngine references
+- SaveData must include:
+  - `version` integer
+  - `createdAt` / `updatedAt` optional timestamps if needed
+
+## Versioning & Migration (Hard Rule)
+- Every breaking change increments SaveData version.
+- Migration must exist for older versions:
+  - `ISaveMigration` or `SaveMigrator` maps old->new
+- Never delete fields without migration plan.
+
+## Failure Handling
+- Save must be atomic:
+  - write to temp
+  - verify
+  - swap/replace
+- If save fails:
+  - return a Result with error reason
+  - keep the last good save intact
+
+## Async & Cancellation
+- Save/Load operations are async (UniTask) and accept CancellationToken.
+- On scene unload:
+  - cancel or finish gracefully (do not deadlock).
+
+## Security / Integrity (optional)
+- Consider checksum/hmac if tampering matters (not required unless specified).
+
+## Forbidden
+- Serializing Unity objects directly (GameObject/MonoBehaviour).
+- Using PlayerPrefs for complex structured saves (allowed only for tiny settings).

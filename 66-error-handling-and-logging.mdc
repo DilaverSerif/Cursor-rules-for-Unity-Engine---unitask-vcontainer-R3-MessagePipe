@@ -1,0 +1,45 @@
+# Error Handling & Logging Rules
+
+## Purpose
+Standardizes errors, results, and logs so bugs are visible and recoverable.
+
+## No Silent Failures (Hard Rule)
+- `catch { }` is forbidden.
+- Swallowing exceptions is forbidden.
+
+## Result-First for User Flows
+For flows like:
+- Save/Load
+- Purchases/unlocks
+- Addressables load
+- Network calls (if any)
+Prefer returning a Result type:
+- Success/Failure
+- Error code/reason (human-readable + machine-readable)
+
+Exceptions are still allowed for truly unexpected states, but must be logged.
+
+## Log Levels Standard
+- Info: important milestones (scene loaded, save completed)
+- Warning: recoverable abnormal cases (migrated save, optional asset missing)
+- Error: player-impacting failure (save failed)
+- Exception: unexpected failure requiring stack trace
+
+## Ownership
+- Presentation: minimal logs (mostly none)
+- Application: flow/milestone logs
+- Infrastructure: detailed IO/Addressables logs (but rate-limited)
+
+## Async Error Safety
+- Avoid fire-and-forget.
+- If necessary:
+  - use a central helper that logs exceptions
+  - never allow async exceptions to vanish
+
+## User Feedback
+- Player-facing errors must be converted to UI messages via Application layer
+  (UI should not interpret exceptions directly).
+
+## Forbidden
+- Logging spam in loops / per-frame.
+- Returning null as an error signal (use Result).

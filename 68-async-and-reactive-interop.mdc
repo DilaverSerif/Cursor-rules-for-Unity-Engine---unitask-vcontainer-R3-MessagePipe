@@ -1,0 +1,66 @@
+# UniTask ↔ R3 ↔ MessagePipe Interop Rules
+
+## Purpose
+Defines safe, consistent interaction patterns between async flows (UniTask),
+reactive state (R3), and one-shot events (MessagePipe).
+
+## Core Principles (Hard Rules)
+- R3 = STATE (long-lived, observable over time)
+- MessagePipe = EVENT (one-shot notification)
+- UniTask = FLOW (orchestration, IO, long operations)
+- Never use MessagePipe to "store" state.
+- Never use R3 to emulate one-shot events.
+
+## Standard Flow Pattern (Preferred)
+When a UseCase performs an async operation:
+1) Validate (Domain rules)
+2) Await async work (UniTask) with CancellationToken
+3) Mutate R3 state (single source of truth)
+4) Publish MessagePipe event (optional, one-shot)
+5) Return Result (preferred) or throw only for unexpected errors
+
+### Ordering Rule
+- If both state and event occur:
+  - Update STATE first, then publish EVENT.
+This prevents subscribers from reacting to an event while reading stale state.
+
+## Cancellation & Lifetime
+- Every async workflow longer than a frame MUST accept CancellationToken.
+- Scene-bound async must be cancelled on scene unload / scope disposal.
+- On cancellation:
+  - Do not publish "success" events.
+  - Prefer returning a cancelled Result or rethrow OperationCanceledException to be handled upstream.
+
+## Error Handling
+- User-facing flows (save/load, purchases, loading assets) must return Result, not rely on exceptions.
+- Exceptions are allowed for truly unexpected states, but must be logged once at the boundary.
+
+## Bridging Patterns
+### A) Event -> Async UseCase
+- Subscribing system receives MessagePipe event and triggers a UseCase:
+  - The UseCase handles async work and updates state.
+- Subscription owner must dispose via scope/CompositeDisposable.
+
+### B) Async -> State
+- Async operations MUST end by updating R3 state via Application layer.
+- Do not update UI directly from async code; UI binds to state.
+
+### C) State -> UI
+- UI subscribes to ViewModel-level streams.
+- ViewModels own subscriptions and dispose reliably.
+
+## Concurrency (Hard Rules)
+- Avoid multiple concurrent UseCases mutating the same state.
+- If concurrency is possible:
+  - Use a gate (SemaphoreSlim/AsyncLock) or an idempotency guard.
+  - Alternatively, funnel mutations through a single coordinator service.
+
+## Threading
+- Unity API must be called on main thread.
+- If background work is used, switch back to main thread before touching Unity objects or scenes.
+
+## Forbidden
+- `async void` outside Unity callbacks.
+- Fire-and-forget without centralized exception logging.
+- Publishing MessagePipe events from UI layer.
+- Publishing events before state is updated.

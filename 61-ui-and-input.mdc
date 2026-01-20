@@ -1,0 +1,46 @@
+# UI & Input Rules
+
+## Purpose
+Standardizes how UI and player input interact with the game without coupling to gameplay internals.
+
+## Responsibilities
+- View (MonoBehaviour / UI component):
+  - Collects user input (click/touch)
+  - Forwards intent to a UseCase or Presenter
+  - Displays state (text, progress bars, lists)
+  - No gameplay rules
+- ViewModel (Presentation/ViewModels):
+  - Subscribes to R3 state
+  - Maps state to UI-friendly values
+  - Holds CompositeDisposable and disposes properly
+  - Does NOT publish MessagePipe events directly
+- Presenter (optional):
+  - Bridges View and UseCase if needed (keeps MB thin)
+
+## Interaction Flow (Hard Rule)
+- UI/Input -> UseCase (Application) -> State/Event
+- UI never calls Infrastructure directly (no Save/Load, Addressables, file IO).
+
+## R3 + MessagePipe in UI
+- UI subscribes to:
+  - R3 state streams (continuous values)
+  - MessagePipe events ONLY if they are purely presentation concerns (e.g., toast notifications)
+- UI must not publish global/gameplay MessagePipe events.
+  - UI actions must call UseCases, which may publish events.
+
+## Input Handling
+- Avoid polling input in Update() where possible.
+- Prefer event-driven handlers (button callbacks, input system events).
+- If Update() is required:
+  - keep it minimal
+  - no allocations
+  - no business logic
+
+## Scene/Navigation
+- Scene transitions are controlled by Application flow (UseCase/EntryPoint), not UI direct calls.
+- UI may request navigation by calling a Navigation UseCase.
+
+## Forbidden
+- UI mutating gameplay state directly.
+- UI owning long-lived services.
+- Subscriptions without disposal (memory leaks).

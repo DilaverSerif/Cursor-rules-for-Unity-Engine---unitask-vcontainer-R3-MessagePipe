@@ -1,0 +1,50 @@
+# Docs & Comments Rules
+
+## Purpose
+Keep code understandable by documenting intent ("why") and usage boundaries.
+
+## Comment Philosophy
+- Prefer self-explanatory code, but document:
+  - WHY a decision was made
+  - Invariants and constraints
+  - Performance or allocation-sensitive areas
+  - Cancellation / lifetime assumptions
+
+## Where Comments Are Required
+- Public interfaces and public classes: brief XML summary.
+- UseCases: a short header comment describing:
+  - What it does
+  - Inputs/outputs
+  - Side effects (state mutations, events, persistence)
+- State containers (R3): document:
+  - Source of truth
+  - Who is allowed to mutate
+  - Thread/lifetime assumptions
+- MessagePipe events: document meaning and when it's published.
+
+## Where Comments Are Forbidden / Discouraged
+- Do not comment obvious code (e.g., "increment i").
+- Do not leave TODOs without context or owner.
+- Avoid large block comments that duplicate the code.
+
+## Documentation Files
+- If a subsystem is non-trivial (save versioning, simulation, economy):
+  - Maintain a short markdown doc in /Docs (or similar) describing:
+    - Data model
+    - Flow diagrams (optional)
+    - Key invariants
+
+## API Docs
+- For types used across layers (contracts):
+  - Use XML docs for parameters and return values.
+- For Result types:
+  - Document error codes and meanings.
+
+## Examples
+- Prefer adding small usage examples in comments for tricky patterns:
+  - cancellation flows
+  - subscription disposal patterns
+
+## Forbidden
+- Commenting "what" instead of "why" in critical systems.
+- Inconsistent naming between docs and code.

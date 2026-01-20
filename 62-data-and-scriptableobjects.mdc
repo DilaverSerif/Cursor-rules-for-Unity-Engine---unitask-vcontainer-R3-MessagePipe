@@ -1,0 +1,39 @@
+# Data & ScriptableObject Rules
+
+## Purpose
+Keeps static configuration/data clean and prevents mixing data, logic, and runtime state.
+
+## ScriptableObjects
+- ScriptableObjects are for:
+  - Static configuration (items, upgrades, recipes, prices, spawn tables)
+  - Authoring content
+- ScriptableObjects are NOT for:
+  - Runtime mutable state
+  - Service logic
+  - Cross-system orchestration
+
+## Data vs Logic vs State (Hard Rule)
+- Data: ScriptableObjects / JSON tables / configs
+- Logic: Domain + Application code
+- State: R3 reactive state in Application/State
+These must not be mixed.
+
+## Access Pattern
+- Configs are injected via DI:
+  - RegisterInstance(config) in VContainer
+- Avoid deep SO reference graphs that act like hidden service locators.
+  - Keep references shallow and explicit.
+
+## Validation
+- Add validation utilities (editor-time or runtime) that verify:
+  - required IDs exist
+  - values are within expected ranges
+- Validation must not introduce gameplay rules into SOs.
+
+## IDs and Lookups
+- Prefer stable identifiers (string or int IDs) for content references.
+- Avoid using Unity instance IDs as persistent identifiers.
+
+## Forbidden
+- ScriptableObject holding ReactiveProperty / subscriptions.
+- ScriptableObject calling MessagePipe or UseCases.

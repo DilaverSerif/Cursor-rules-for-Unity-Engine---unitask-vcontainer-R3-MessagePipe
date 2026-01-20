@@ -1,0 +1,39 @@
+# Performance & Memory Rules
+
+## Purpose
+Prevents GC spikes, frame drops, and scaling issues (especially on mobile).
+
+## Update Discipline
+- Avoid Update()/FixedUpdate() unless required.
+- Prefer:
+  - event-driven (MessagePipe)
+  - state-driven (R3)
+  - timers that do not allocate
+
+## Allocations (Hard Rules)
+- No per-frame allocations:
+  - no LINQ in hot paths
+  - no string concatenation in loops
+  - no new lists/dicts each frame
+- Cache references and reusable buffers.
+
+## Object Lifecycle
+- Prefer pooling for frequently created objects (customers, VFX, UI list rows).
+- Avoid Instantiate/Destroy spikes during gameplay.
+
+## Reactive Performance
+- Do not create streams per frame.
+- Keep operator chains readable and shallow.
+- Use throttling/debouncing for UI updates when necessary.
+
+## Logging
+- No logging inside per-frame code.
+- Rate-limit repetitive warnings/errors.
+
+## Profiling Expectations
+- Any performance-sensitive feature must be:
+  - measured in Unity Profiler
+  - reviewed for allocations
+
+## Forbidden
+- Hidden allocations in Update from closures/alloc-heavy patterns.

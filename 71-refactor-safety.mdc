@@ -1,0 +1,52 @@
+# Refactor Safety Rules (Cursor)
+
+## Purpose
+Prevents accidental architecture breakage and regressions during refactors and AI-assisted edits.
+
+## Hard Rules
+- Do not change public APIs (public methods/classes/interfaces) unless explicitly requested.
+- Do not move files across layers (Domain/Application/Presentation/Infrastructure) unless necessary.
+- Do not introduce new dependencies that violate layer rules.
+
+## "Smallest Change" Rule
+- Prefer the smallest modification that achieves the requested behavior.
+- Avoid large rewrites when a targeted change is sufficient.
+
+## Safe Refactor Checklist (Must Follow)
+When refactoring:
+1) Preserve behavior first; refactor structure second.
+2) Keep names consistent with project conventions.
+3) Ensure DI registrations still resolve correctly (VContainer).
+4) Ensure CancellationToken is still passed through async paths.
+5) Ensure ALL subscriptions are disposed (R3 and MessagePipe).
+6) Ensure no Unity API leaks into Domain.
+7) Ensure no new allocations added to hot paths.
+
+## Rename/Move Rules
+- If renaming:
+  - Update all references.
+  - Keep file name == main type name.
+- If moving:
+  - Verify layer ownership.
+  - Update asmdef references if used.
+  - Avoid introducing circular dependencies.
+
+## Extract Method/Class Rules
+- Extract to improve readability/testability:
+  - Domain extraction for pure calculations/rules
+  - Application extraction for orchestration steps
+  - Presentation extraction for UI mapping
+- Do not extract "helper" classes that become hidden service locators.
+
+## Regression Guard
+- If code touches:
+  - Save/Load
+  - Time/simulation
+  - Economy/upgrades
+  - Scene bootstrapping
+Then add or update at least one EditMode test OR a simple runtime diagnostic to validate behavior.
+
+## Forbidden
+- Refactors that mix state and events (R3 vs MessagePipe boundary violation).
+- Introducing static singletons during refactor.
+- Subscribing in constructors without guaranteed disposal by scope.

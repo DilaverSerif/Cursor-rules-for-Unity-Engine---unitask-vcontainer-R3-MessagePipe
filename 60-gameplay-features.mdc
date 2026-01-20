@@ -1,0 +1,49 @@
+# Gameplay Features Rules
+
+## Purpose
+Defines how gameplay mechanics (customers, production, upgrades, workers, economy) must be implemented.
+
+## Layering (Hard Rules)
+- Gameplay RULES live in:
+  - Domain (pure rules/models)
+  - Application (use-cases + orchestration)
+- Gameplay MUST NOT live in:
+  - MonoBehaviours (Presentation)
+  - ScriptableObjects (data only)
+  - Infrastructure (adapters only)
+
+## Feature Design
+- Each feature must have:
+  - A UseCase entry point (Application/UseCases)
+  - A clear state impact (R3 state) and/or event (MessagePipe)
+- Avoid "God systems":
+  - No single class should own unrelated responsibilities.
+
+## Ownership
+- Application owns orchestration and timing (async, flows).
+- Domain owns invariants and calculations (pricing, upgrade effects).
+- Presentation only forwards user intent and renders state.
+
+## Decision Boundaries
+- UI/Input never decides business rules.
+- MonoBehaviours never compute gameplay outcomes.
+- UseCases are the only place allowed to:
+  - Mutate gameplay state
+  - Trigger persistence
+  - Publish gameplay events
+
+## Concurrency Safety
+- Do not mutate the same state from multiple concurrent async flows.
+- When a UseCase starts an async operation:
+  - It must accept CancellationToken
+  - It must be idempotent or guarded against re-entry when relevant
+
+## Naming
+- UseCases: VerbNounUseCase (e.g., PlaceOrderUseCase)
+- Systems/Services: NounService (e.g., CustomerFlowService)
+- Factories: NounFactory
+
+## Forbidden
+- Gameplay logic inside Update() loops unless absolutely necessary.
+- Direct instantiation of services with `new` (use DI).
+- Static globals for gameplay state.
