@@ -1,0 +1,19 @@
+# Architecture & Folder Rules
+
+## Folder Ownership
+- Domain: Pure C#, no UnityEngine, no R3, no MessagePipe
+- Application: UseCases, Services, State (R3 lives here)
+- Presentation: UI, MonoBehaviours, ViewModels
+- Infrastructure: Save, Time, Addressables, adapters
+- Bootstrap: LifetimeScopes, Installers, EntryPoints
+
+## Dependencies
+- Domain -> nothing
+- Application -> Domain
+- Infrastructure -> Domain (+ Application contracts)
+- Presentation -> Application (+ Domain read-only)
+
+## Anti-patterns
+- Domain using Unity API — forbidden
+- Static singletons — forbidden
+- Cross-layer circular references — forbidden

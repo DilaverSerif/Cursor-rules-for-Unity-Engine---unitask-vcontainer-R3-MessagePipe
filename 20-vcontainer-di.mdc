@@ -1,0 +1,21 @@
+# VContainer DI Rules (with MessagePipe)
+
+## LifetimeScopes
+- ProjectLifetimeScope:
+  - Global services
+  - Save system
+  - Clock
+  - Global MessagePipe (rare)
+- SceneLifetimeScope:
+  - Scene gameplay
+  - Scene UI
+  - Scene-scoped MessagePipe (preferred)
+
+## MessagePipe Registration
+- Always register MessagePipe via VContainer.
+- Prefer scoped brokers.
+- No static/global brokers.
+
+## Anti-patterns
+- Service locator usage — forbidden
+- Manual new() for services — forbidden

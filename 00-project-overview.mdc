@@ -1,0 +1,23 @@
+# Project Overview (Unity) — VContainer + UniTask + R3
+
+## Goals
+- Maintainable, testable architecture for a Unity game using:
+  - VContainer for DI
+  - UniTask for async workflows
+  - R3 for reactive state + UI binding
+  - MessagePipe for event-driven communication
+
+## Non-goals
+- Do NOT introduce additional frameworks unless explicitly requested.
+- Do NOT use static singletons for services/state.
+
+## High-level Principles
+- Domain: pure C# rules/models (no Unity API)
+- Application: use-cases, orchestration, state coordination
+- Presentation: MonoBehaviours/UI, user input, view binding
+- Infrastructure: IO, Addressables, persistence, platform adapters
+
+## AI Behavior Rules (Cursor)
+- Always respect layer boundaries.
+- Prefer minimal, safe changes.
+- When unsure: choose simpler, safer architecture.

@@ -1,0 +1,16 @@
+# UniTask Async Rules
+
+## General
+- Prefer UniTask over coroutines.
+- Avoid async void (except Unity callbacks).
+
+## Cancellation
+- Every long async flow must support CancellationToken.
+
+## Exceptions
+- Never swallow exceptions.
+- Log or propagate.
+
+## Anti-patterns
+- Task.Run for gameplay — forbidden
+- Coroutines for business logic — forbidden

@@ -1,0 +1,12 @@
+# Coding Standards
+
+## Event vs State
+- Always decide: STATE (R3) or EVENT (MessagePipe)
+
+## Naming
+- Events: past tense
+- State: nouns/adjectives
+
+## Forbidden
+- UI publishing events
+- Domain depending on R3 or MessagePipe

@@ -1,0 +1,17 @@
+# R3 Reactive Rules (with MessagePipe Boundary)
+
+## Core Rule
+- R3 = STATE
+- MessagePipe = EVENT
+
+## R3 Usage
+- Long-lived observable state.
+- UI binds via ViewModels.
+
+## MessagePipe Usage
+- One-shot events.
+- Past tense naming.
+
+## Forbidden
+- Using R3 for events
+- Using MessagePipe for state
