@@ -1,0 +1,187 @@
+---
+name: Folder & Feature Organization
+description: Use this rule when creating new folders, scripts, prefabs, ScriptableObjects, or UI. Defines where files live, how features are grouped, and how Unity-specific assets align with architecture.
+---
+
+# Folder & Feature Organization
+
+## Goals
+- One obvious place for every file.
+- Feature-based grouping without breaking architectural boundaries.
+- Minimize cross-folder dependencies and circular references.
+- Make refactors predictable and safe.
+
+---
+
+## Top-Level Folder Policy
+
+Assets/
+├── Game/ # All game-specific code & assets
+│ ├── Domain/
+│ ├── Application/
+│ ├── Presentation/
+│ ├── Infrastructure/
+│ ├── Features/
+│ └── Shared/
+│
+├── Art/ # Raw art assets (models, textures, audio)
+├── UI/ # Shared UI prefabs, themes, fonts
+├── Scenes/
+├── Settings/
+└── ThirdParty/  
+### Rules
+- **Nothing game-related lives outside `Assets/Game`.**
+- `ThirdParty` contains imported packages only (no custom code).
+- `Art` contains raw assets only — no gameplay logic.
+
+---
+
+## Architectural Folders
+
+### `Game/Domain`
+**Pure logic**
+- No UnityEngine references.
+- No MonoBehaviours.
+- No ScriptableObject inheritance.
+- Contains:
+  - entities
+  - value objects
+  - rules
+  - domain events (data-only)
+
+### `Game/Application`
+**Use-cases & orchestration**
+- No scene references.
+- No GameObject logic.
+- Coordinates Domain + Infrastructure.
+- Contains:
+  - services
+  - commands/queries
+  - loaders/savers
+  - factories (logical, not prefab)
+
+### `Game/Infrastructure`
+**IO & external systems**
+- Unity APIs
+- save/load
+- time
+- random
+- input
+- platform services
+- file system
+
+### `Game/Presentation`
+**Unity-facing layer**
+- MonoBehaviours
+- Presenters/ViewModels
+- UI binding logic
+- No business rules.
+
+---
+
+## Feature-Based Organization
+
+### `Game/Features`
+Features group related code **horizontally**, but must still respect layers.
+
+Features/
+├── Restaurant/
+│ ├── Domain/
+│ ├── Application/
+│ ├── Presentation/
+│ └── Infrastructure/
+│
+├── Workers/
+│ ├── Domain/
+│ ├── Application/
+│ └── Presentation/ 
+### Rules
+- Feature folders **mirror architectural layers**.
+- Features may depend on:
+  - Shared
+  - Domain/Application of other features (carefully)
+- Features must not bypass layers (e.g., Presentation → Domain direct mutation).
+
+---
+
+## Shared Folder
+
+### `Game/Shared`
+Used only when duplication is worse than coupling.
+
+Allowed:
+- base interfaces
+- shared utilities
+- cross-feature value objects
+- cross-feature events
+
+Rules:
+- No feature-specific logic here.
+- No Unity scene knowledge.
+
+---
+
+## Unity Asset Placement Rules
+
+### Scenes
+Assets/Scenes/ ├── Boot/ ├── Gameplay/ ├── UI/
+
+
+
+- Each scene must have exactly one Bootstrapper.
+- Scene-specific scripts live with the feature or Presentation layer, not inside `Scenes`.
+
+### ScriptableObjects
+Assets/Game/.../Data/
+
+
+
+Rules:
+- ScriptableObjects live near the system that consumes them.
+- Never create a global `ScriptableObjects` dump folder.
+
+### Prefabs
+Assets/UI/Prefabs/
+Assets/Game/.../Presentation/Prefabs/ 
+Rules:
+- UI prefabs separated from gameplay prefabs.
+- Prefabs never contain business logic.
+
+---
+
+## Naming Conventions
+
+- Folders: `PascalCase`
+- Scripts: `PascalCase`
+- Features: singular nouns (`Worker`, not `Workers`, unless it's a system)
+- Avoid generic names: `Utils`, `Helpers`, `Misc`
+
+---
+
+## Forbidden Patterns
+
+🚫 Feature code directly inside `Scenes/`  
+🚫 Logic inside `Art/` or `UI/`  
+🚫 Cross-feature access via `FindObjectOfType`  
+🚫 Mega folders like `Scripts/EverythingHere`
+
+---
+
+## Decision Guide (Quick)
+
+| You are creating... | Put it in |
+|---------------------|----------|
+| Business rule | Domain |
+| Use-case | Application |
+| MonoBehaviour | Presentation |
+| Save/Load | Infrastructure |
+| Feature-specific logic | Features/FeatureName |
+| Shared contract | Shared |
+
+---
+
+## Checklist
+- [ ] Can I explain why this file lives here?
+- [ ] Does it respect layer boundaries?
+- [ ] Is there exactly one obvious alternative? (If yes, you chose wrong.)
+ 
