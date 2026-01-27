@@ -1,0 +1,60 @@
+---
+name: Editor Validation Pipeline
+description: Use this rule when introducing ScriptableObjects, configs, prefabs, or data-driven gameplay. Ensures invalid data is detected in-editor and in CI.
+---
+
+# Editor Validation Pipeline
+
+## Goals
+- Fail fast: detect invalid SO/prefab/config before runtime.
+- Standardize validation so data issues are not “silent”.
+
+## Rules
+
+### 1) Every data asset must be validatable
+- ScriptableObjects that affect gameplay must implement a validation method (custom interface or `OnValidate` wrapper).
+- Validation must check:
+  - required references not null
+  - id uniqueness (if applicable)
+  - numeric ranges
+  - missing localization keys (if used)
+  - inconsistent dependencies (e.g., upgrade requires missing machine)
+
+### 2) Validation must be non-destructive
+- Validation should not auto-modify data unless explicitly intended and clearly logged.
+- Prefer reporting errors/warnings.
+
+### 3) Central validation runner
+Create an Editor-only “Validate All” entry:
+- Menu item: `Tools/Validate/Validate All`
+- Runs validation for:
+  - all ScriptableObjects in relevant folders
+  - critical prefabs (root prefabs, UI prefabs)
+  - optional: addressable labels if you use them (but you said addressables rule not needed)
+
+### 4) CI validation
+- CI must run validation in batchmode as part of build/test pipeline (recommended).
+- Any **Error** fails the pipeline. Warnings do not fail but are reported.
+
+### 5) Error messages must be actionable
+Validation errors must include:
+- asset name + path
+- field name
+- expected vs actual
+- suggested fix
+
+### 6) Avoid runtime-only failures
+If a runtime system depends on data, it must assume data is validated:
+- Runtime should still guard (log + safe fallback), but not act as primary validator.
+
+## Severity levels
+- **Error**: will break gameplay or crash
+- **Warning**: will degrade experience or produce odd behavior
+- **Info**: optional guidance
+
+## Checklist
+- [ ] New SO has validation
+- [ ] Included in Validate All runner
+- [ ] CI runs validation
+- [ ] Errors are actionable
+

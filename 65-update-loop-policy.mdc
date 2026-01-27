@@ -1,0 +1,60 @@
+---
+name: Update Loop Policy
+description: Use this rule whenever writing Update/LateUpdate/FixedUpdate or frame-tick code. Keeps frame loops lean, deterministic, and allocation-free.
+---
+
+# Update Loop Policy
+
+## Principle
+The frame loop is expensive. Treat Update-family methods as a scarce resource.
+
+## Rules
+
+### 1) Default: no Update
+- Do not add `Update`, `LateUpdate`, `FixedUpdate` unless you can justify why:
+  - input polling
+  - time-based animation/lerp
+  - physics interaction (FixedUpdate)
+  - very small per-frame visual tasks
+
+If it’s gameplay logic, prefer event-driven (MessagePipe) or reactive state (R3).
+
+### 2) Keep Update minimal and allocation-free
+Inside Update:
+- No LINQ
+- No string concatenation in hot paths
+- No `new` allocations per frame
+- No `FindObjectOfType`, `GetComponent` repeated
+- No scene-wide queries (unless cached / throttled)
+
+### 3) Move heavy work out of Update
+- Use timers/throttles (e.g., run every 0.1s) instead of every frame.
+- Use jobs/batching/pooling for repeated work.
+- Prefer async flows that await events rather than polling.
+
+### 4) Determinism: FixedUpdate is for physics only
+- Physics movement/forces in FixedUpdate
+- Camera smoothing / UI animations typically in LateUpdate
+- Do not mix physics decisions into Update.
+
+### 5) Centralize tick when many systems need it
+If multiple systems need frame ticks:
+- Create one `GameLoopTicker` and distribute signals (R3 stream or MessagePipe).
+- Avoid dozens of MonoBehaviours each running their own Update.
+
+### 6) Profiling gates
+If you add Update:
+- Add a short comment explaining why it must be per-frame.
+- Add a simple measurement plan (Profiler marker or at least a TODO).
+- Consider a debug-only counter to detect accidental spikes.
+
+## “Allowed” patterns (examples)
+- Poll input → publish a command/event
+- Smoothly interpolate a transform using cached refs
+- Drive an animation parameter
+
+## “Disallowed” patterns (examples)
+- Search scene each frame
+- Evaluate business rules each frame
+- Allocate collections each frame
+

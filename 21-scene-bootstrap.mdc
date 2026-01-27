@@ -1,0 +1,67 @@
+---
+name: Scene Bootstrap & Lifetime
+description: Use this rule when implementing scene entrypoints, DI scopes, initialization order, and scene load/unload flows (single or additive). Prevents leaks, double-inits, and race conditions.
+---
+
+# Scene Bootstrap & Lifetime
+
+## Goals
+- One clear initialization path per scene.
+- Deterministic ordering for dependencies and UI/gameplay readiness.
+- Safe teardown on scene unload (dispose, cancel, release).
+- Additive scenes must not create duplicate singletons or double subscriptions.
+
+## Terminology
+- **Bootstrap**: The minimal code that wires the scene to the application (DI scope, root presenters/controllers).
+- **Scene Scope**: Lifetime boundary for scene-specific objects.
+- **App/Global Scope**: Long-lived lifetime for cross-scene services.
+
+## Rules
+
+### 1) Single entrypoint per scene
+- Each scene must have exactly one bootstrap component (e.g., `SceneBootstrapper`).
+- No other MonoBehaviour may perform “global wiring” (registering buses, creating service singletons, etc.).
+
+### 2) Explicit initialization phases
+Bootstrap must follow:
+1. **Create/Resolve dependencies**
+2. **Bind view/presenter**
+3. **Start flows** (async operations, streams)
+4. **Signal ready** (optional) to unblock gameplay/UI input
+
+Avoid “do everything in Awake()”. Prefer:
+- `Awake()` → only cache references / minimal checks
+- `Start()` or an explicit `Initialize()` → wiring & starting flows
+
+### 3) Cancellation on unload is mandatory
+- Every async operation started by the scene must be cancellable.
+- Scene scope must own a `CancellationToken` which cancels on unload.
+- On unload: cancel first, then dispose subscriptions, then release resources.
+
+### 4) Additive scene policy
+- Additive scenes must never instantiate Global/App scoped singletons.
+- Additive scenes can register Scene-scoped presenters/controllers only.
+- If an additive scene needs a global service, it must resolve it; not create it.
+
+### 5) No hidden side-effects during load
+- Avoid subscribing to global events in constructors or field initializers.
+- Subscriptions must happen in a controlled init phase and be disposed in scene teardown.
+
+### 6) Idempotent initialization
+- Bootstrap must be safe against double-calls (Editor domain reload, re-enable, etc.).
+- Keep a local `_initialized` guard if needed.
+
+### 7) Logging and error surfacing
+- Bootstrap must log:
+  - scene name + version/config id
+  - init start/end
+  - critical failures with context
+- If initialization fails, show a user-facing fallback UI (or safe state) rather than partial gameplay.
+
+## Checklist
+- [ ] Exactly one bootstrapper per scene
+- [ ] Scene token cancels on unload
+- [ ] All subscriptions are disposed
+- [ ] Additive scene does not create global singletons
+- [ ] Initialization order is documented in the bootstrapper
+

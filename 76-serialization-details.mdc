@@ -1,0 +1,65 @@
+---
+name: Serialization Details & Data Stability
+description: Use this rule when designing SaveData/DTOs, versioning, and persistence. Prevents broken saves and unstable IDs across updates.
+---
+
+# Serialization Details & Data Stability
+
+## Goals
+- Backward compatible saves.
+- Stable identifiers that never change across builds.
+- Predictable data formats (no locale/timezone surprises).
+
+## Rules
+
+### 1) Save format must be explicit
+- Save root contains:
+  - `version`
+  - `createdAtUtc` (optional)
+  - `lastPlayedAtUtc` (optional)
+- Use UTC for timestamps, never local time.
+
+### 2) IDs must be stable and never derived from names
+- Never use asset names, enum indexes, or array positions as persistent IDs.
+- Use explicit IDs in ScriptableObjects (string GUID-like or int with registry).
+- If an ID changes, you must add a migration step.
+
+### 3) Versioned migrations are mandatory
+- Every breaking change increments save version.
+- Provide migrations: `vN -> vN+1`
+- Migrations must be:
+  - deterministic
+  - test-covered (round-trip + migrate tests)
+
+### 4) Avoid floats when you can
+- Prefer integers for currency, counts, and timers in milliseconds.
+- If floats are required:
+  - consider rounding policy
+  - avoid locale-dependent parsing
+  - store as invariant culture
+
+### 5) Nullable and missing fields
+- Deserialization must tolerate missing fields (older saves).
+- Provide sensible defaults.
+- Never crash on unknown fields (forward compatibility).
+
+### 6) Data validation on load
+- After load, validate:
+  - referenced IDs exist
+  - quantities within bounds
+  - impossible states corrected (log + fix)
+- If save is corrupt:
+  - attempt recover
+  - otherwise fallback to new game with a clear message (or safe silent fallback for demos)
+
+### 7) Separation: SaveData vs Runtime State
+- SaveData is a DTO, not your runtime model.
+- Map SaveData -> runtime state via a loader/use-case.
+- Do not serialize live objects directly.
+
+## Recommended tests
+- Save -> Load round-trip equivalence
+- Old version save -> migrate -> load
+- Missing fields -> defaults
+- Corrupt payload -> safe handling
+

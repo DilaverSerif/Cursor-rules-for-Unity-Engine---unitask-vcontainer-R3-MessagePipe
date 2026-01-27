@@ -1,0 +1,63 @@
+---
+name: Testing Strategy (EditMode/PlayMode)
+description: Use this rule when adding new features or refactoring. Defines the minimum test coverage expectations per layer and how to structure tests in Unity.
+---
+
+# Testing Strategy (EditMode/PlayMode)
+
+## Goals
+- Catch regressions early.
+- Keep Domain/Application logic testable without Unity runtime.
+- Use PlayMode tests only when Unity integration is required.
+
+## Test Types
+
+### 1) Domain tests (EditMode, pure)
+- No UnityEngine references.
+- Test business rules, calculations, state transitions.
+- Fast, deterministic, no async unless purely .NET async.
+
+### 2) Application tests (EditMode, mocked infra)
+- Test use-cases and orchestration.
+- Mock repositories/gateways/time/random.
+- Verify events published and state updates.
+
+### 3) Presentation tests (limited)
+- Prefer “Presenter/ViewModel” tests in EditMode (no GameObject).
+- UI layout/animation: only if necessary in PlayMode.
+
+### 4) Infrastructure integration tests (rare, explicit)
+- Save/load serialization round-trips.
+- File IO boundaries (use temp directories).
+- Network stubs (never hit real endpoints in CI).
+
+## Minimum Coverage Rules
+- Any bug fix must include a regression test.
+- Any new feature must include:
+  - at least 1 Domain/Application test for core logic
+  - and optionally 1 integration test if boundaries are risky (save/load, scene bootstrap, etc.)
+
+## Unity-specific Rules
+
+### EditMode first
+- If logic can be tested in EditMode, it must be.
+- PlayMode tests are slower and more fragile.
+
+### Async tests
+- Prefer deterministic virtual time when possible.
+- If using UniTask, tests must control cancellation and timeouts.
+- Every async test must have a timeout guard to avoid hangs.
+
+### Test structure
+- Arrange-Act-Assert.
+- Keep fixtures small.
+- Avoid shared mutable state across tests.
+
+## Naming Convention
+- `ClassName_WhenCondition_ShouldExpectedResult`
+- Example: `OrderQueue_WhenEmpty_ShouldNotDequeue`
+
+## CI gating (recommended)
+- Run EditMode tests on every PR.
+- Run PlayMode tests on main branch or nightly (unless project is small).
+

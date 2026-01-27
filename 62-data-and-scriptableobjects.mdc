@@ -43,3 +43,14 @@ These must not be mixed.
 ## Forbidden
 - ScriptableObject holding ReactiveProperty / subscriptions.
 - ScriptableObject calling MessagePipe or UseCases.
+
+## SO vs MessagePipe Boundary (Event Discipline)
+- SO = data (ScriptableObject is strictly configuration/authoring data).
+- MessagePipe = events (use it to signal important state transitions).
+- Keep the boundary explicit: SOs do not publish/subscribe to MessagePipe.
+- Design messages as domain events:
+  - Examples: TableUpgraded, CustomerLeftAngry, OrderServed
+- Limit the number of events and publish only at meaningful milestones/turning points.
+- Always add lightweight debugging/observability for events:
+  - Log on publish in dev builds, or
+  - Provide a small event monitor/subscriber for critical flows.
