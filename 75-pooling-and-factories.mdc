@@ -1,0 +1,67 @@
+---
+name: Pooling & Factories
+description: Use this rule when instantiating prefabs, spawning gameplay objects, or building UI lists. Standardizes pooling, factories, and avoids GC spikes.
+---
+
+# Pooling & Factories
+
+## Goals
+- Prevent runtime allocation spikes from Instantiate/Destroy.
+- Keep creation logic centralized and testable.
+- Make object lifetimes explicit.
+
+## Rules
+
+### 1) No direct Instantiate in gameplay flow
+- Gameplay and UI code must not call `Instantiate` directly except in bootstrap/setup tools.
+- Use a **Factory** abstraction:
+  - `IEnemyFactory`, `IUIViewFactory`, etc.
+- Factories can internally use pooling.
+
+### 2) Pool by default for frequently spawned objects
+Pool candidates:
+- bullets/projectiles
+- customers/NPCs
+- UI rows/items
+- VFX particles (if custom)
+- temporary world items
+
+Non-pool candidates:
+- singletons
+- rarely created objects (e.g., 1 time per session) unless costly
+
+### 3) Return-to-pool is the only “destroy”
+- Systems must request `Release()` instead of `Destroy()`.
+- On release:
+  - reset state
+  - stop async operations
+  - dispose subscriptions
+  - disable GameObject
+
+### 4) Reset contract
+Every pooled object must implement a reset protocol:
+- `OnSpawn(context)`
+- `OnDespawn()`
+No logic should assume previous state is cleared automatically.
+
+### 5) Pool ownership & lifetime
+- Pools are owned by the Scene scope unless the objects are truly cross-scene (rare).
+- Scene unload must dispose pools to avoid leaks.
+
+### 6) UI list virtualization guideline
+- Long scrolling lists must use:
+  - pooling of row views
+  - incremental binding
+  - avoid rebuilding full hierarchy each refresh
+
+### 7) Metrics
+- Track pool misses (had to Instantiate) in dev builds.
+- Track active/inactive counts for debugging.
+
+## Checklist
+- [ ] No Instantiate in gameplay methods
+- [ ] Factory used for creation
+- [ ] Pooled objects implement reset protocol
+- [ ] Release path cancels/disposes
+- [ ] Pool disposed on scene unload
+
